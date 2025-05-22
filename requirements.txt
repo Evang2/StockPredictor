@@ -1,0 +1,15 @@
+streamlit
+pandas
+yfinance
+matplotlib
+scikit-learn
+prophet
+textblob
+beautifulsoup4
+requests
+lxml
+vaderSentiment
+transformers
+torch
+python-dotenv
+plotly 
