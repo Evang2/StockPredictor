@@ -10,7 +10,7 @@ requests
 lxml
 vaderSentiment
 transformers
-torch
+torch==2.0.1
 python-dotenv
 plotly 
 wbdata
