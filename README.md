@@ -54,25 +54,39 @@ StockPredictor/
 ![Screenshot 2025-05-23 022002](https://github.com/user-attachments/assets/183e0c68-70dd-4883-adde-6e8b586b4d56)
 
 ---
+## 🚀 Deployment & Demo
 
-## 📦 Installation
+This app is live and publicly accessible via **Streamlit Cloud**:
 
-```bash
-# 1. Clone the repo
-https://github.com/YOUR_USERNAME/StockPredictor.git
+🌐 **Live Demo**: [https://stockpredictor-evang2.streamlit.app/](https://stockpredictor-evang2.streamlit.app/)
 
-cd StockPredictor
+---
 
-# 2. Create a virtual environment (optional but recommended)
-python -m venv venv
-source venv/bin/activate   # or venv\Scripts\activate on Windows
+### 🖥️ Running Locally
 
-# 3. Install dependencies
-pip install -r requirements.txt
+To run the app on your local machine:
 
-# 4. Run the app
-streamlit run app.py
-```
+1. **Clone the repository**:
+   ````
+   git clone https://github.com/Evang2/StockPredictor.git
+   cd StockPredictor
+2. **Create and activate a virtual environment**:
+   ````
+   python -m venv venv
+   venv\Scripts\activate   # Windows
+   source venv/bin/activate   # macOS/Linux
+3. **Install dependencies**:
+   ````
+   pip install -r requirements.txt
+4. **Set your API keys in a .env file**:
+   ````
+   FRED_API_KEY=your_fred_api_key
+   FINNHUB_API_KEY=your_finnhub_api_key
+5. **Run the app**:
+   ````
+   streamlit run app.py
+   
+If you're missing any data (e.g. due to API limits), the app will automatically fall back to demo data for AAPL on Streamlit Cloud.
 
 ---
 
