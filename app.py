@@ -168,6 +168,9 @@ try:
             best_model = min(scores.items(), key=lambda x: x[1][0])[0]
             st.success(f"🏆 Best Model: {best_model} (MAPE: {scores[best_model][0]:.2f}%)")
 
+            st.markdown("### 📊 Model Performance Metrics")
+            st.write(pd.DataFrame(scores, index=["MAPE", "RMSE"]).T)
+
             fig_score = go.Figure()
             for i, metric in enumerate(["MAPE", "RMSE"]):
                 fig_score.add_trace(go.Bar(
