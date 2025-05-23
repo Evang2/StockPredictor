@@ -26,7 +26,9 @@ from utils import merge_all_features, add_sentiment_column
 
 st.set_page_config(page_title="Smart Stock Predictor", layout="centered")
 st.title("📈 Smart Stock Predictor")
-st.markdown("Predict future prices using Machine Learning + News Sentiment, Macroeconomic Indicators, and VIX (Volatility Index).")
+st.markdown(
+    "Predict future prices using Machine Learning + News Sentiment, Macroeconomic Indicators, and VIX (Volatility Index)."
+)
 
 # Detect if running on Streamlit Cloud
 is_streamlit_cloud = "streamlit" in socket.gethostname()
@@ -34,10 +36,14 @@ is_streamlit_cloud = "streamlit" in socket.gethostname()
 # Sidebar input controls
 st.sidebar.header("🔍 Input Options")
 ticker = st.sidebar.text_input("Stock Ticker", value="AAPL")
-model_choice = st.sidebar.selectbox("Choose Forecasting Model", ["Prophet", "Linear Regression", "XGBoost"])
+model_choice = st.sidebar.selectbox(
+    "Choose Forecasting Model", ["Prophet", "Linear Regression", "XGBoost"]
+)
 compare_models = st.sidebar.checkbox("📊 Compare All Models")
 forecast_days = st.sidebar.slider("Forecast Days", min_value=7, max_value=30, value=14)
-sentiment_model = st.sidebar.selectbox("Sentiment Analysis Model", ["TextBlob", "VADER", "BERT"])
+sentiment_model = st.sidebar.selectbox(
+    "Sentiment Analysis Model", ["TextBlob", "VADER", "BERT"]
+)
 debug_mode = st.sidebar.checkbox("🛠️ Enable Debug Mode")
 
 if ticker:
@@ -48,7 +54,9 @@ if ticker:
             # Fallback only on Streamlit Cloud
             if df.empty or "Close" not in df.columns:
                 if is_streamlit_cloud:
-                    st.warning(f"⚠️ The ticker `{ticker}` could not be loaded on Streamlit Cloud. Using fallback ticker `AAPL` for demonstration.")
+                    st.warning(
+                        f"⚠️ The ticker `{ticker}` could not be loaded on Streamlit Cloud. Using fallback ticker `AAPL` for demonstration."
+                    )
                     ticker = "AAPL"
                     df = fetch_stock_data(ticker)
                 else:
@@ -79,18 +87,22 @@ if ticker:
         st.subheader("📰 Latest News Headlines")
         for h in headlines:
             st.markdown(f"- {h}")
-        st.success(f"📊 Average Sentiment Score ({sentiment_model}): {sentiment_score:.3f}  —  Label: {label}")
+        st.success(
+            f"📊 Average Sentiment Score ({sentiment_model}): {sentiment_score:.3f}  —  Label: {label}"
+        )
 
         if debug_mode:
             st.markdown("#### 🧪 Debug: Sentiment Analysis Details")
             st.code("Raw Headlines:", language="text")
             st.write(headlines)
             st.write("🔍 Sentiment Scores:")
-            st.write({
-                "TextBlob": raw_sentiment,
-                "VADER": fetch_sentiment_vader(headlines)[0],
-                "BERT": fetch_sentiment_bert(headlines)
-            })
+            st.write(
+                {
+                    "TextBlob": raw_sentiment,
+                    "VADER": fetch_sentiment_vader(headlines)[0],
+                    "BERT": fetch_sentiment_bert(headlines),
+                }
+            )
             st.write("📋 Merged DataFrame Preview:")
             st.write(df.tail(10))
 
@@ -103,16 +115,42 @@ if ticker:
 
             merged = pd.merge(
                 forecast_linear.rename(columns={"PredictedClose": "Linear"}),
-                forecast_prophet[["ds", "yhat"]].rename(columns={"ds": "Date", "yhat": "Prophet"}),
-                on="Date", how="inner"
+                forecast_prophet[["ds", "yhat"]].rename(
+                    columns={"ds": "Date", "yhat": "Prophet"}
+                ),
+                on="Date",
+                how="inner",
             )
-            merged = pd.merge(merged, forecast_xgb.rename(columns={"PredictedClose": "XGBoost"}), on="Date", how="inner")
+            merged = pd.merge(
+                merged,
+                forecast_xgb.rename(columns={"PredictedClose": "XGBoost"}),
+                on="Date",
+                how="inner",
+            )
 
             fig, ax = plt.subplots(figsize=(10, 5))
             ax.plot(df["Date"], df["Close"], label="Historical", color="black")
-            ax.plot(merged["Date"], merged["Linear"], label="Linear Regression", linestyle="--", color="orange")
-            ax.plot(merged["Date"], merged["Prophet"], label="Prophet", linestyle="--", color="green")
-            ax.plot(merged["Date"], merged["XGBoost"], label="XGBoost", linestyle="--", color="blue")
+            ax.plot(
+                merged["Date"],
+                merged["Linear"],
+                label="Linear Regression",
+                linestyle="--",
+                color="orange",
+            )
+            ax.plot(
+                merged["Date"],
+                merged["Prophet"],
+                label="Prophet",
+                linestyle="--",
+                color="green",
+            )
+            ax.plot(
+                merged["Date"],
+                merged["XGBoost"],
+                label="XGBoost",
+                linestyle="--",
+                color="blue",
+            )
             ax.set_title(f"{ticker.upper()} Forecast Comparison")
             ax.set_xlabel("Date")
             ax.set_ylabel("Price ($)")
@@ -124,14 +162,49 @@ if ticker:
             st.dataframe(merged.tail(forecast_days))
 
             csv = merged.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Download Comparison CSV", data=csv, file_name=f"{ticker}_comparison_forecast.csv", mime="text/csv")
+            st.download_button(
+                "📥 Download Comparison CSV",
+                data=csv,
+                file_name=f"{ticker}_comparison_forecast.csv",
+                mime="text/csv",
+            )
 
             if debug_mode:
                 true = df["Close"].tail(forecast_days).values
                 scores = {
-                    "Linear Regression": (mean_absolute_percentage_error(true, merged["Linear"].head(forecast_days).values) * 100, np.sqrt(mean_squared_error(true, merged["Linear"].head(forecast_days).values))),
-                    "Prophet": (mean_absolute_percentage_error(true, merged["Prophet"].head(forecast_days).values) * 100, np.sqrt(mean_squared_error(true, merged["Prophet"].head(forecast_days).values))),
-                    "XGBoost": (mean_absolute_percentage_error(true, merged["XGBoost"].head(forecast_days).values) * 100, np.sqrt(mean_squared_error(true, merged["XGBoost"].head(forecast_days).values)))
+                    "Linear Regression": (
+                        mean_absolute_percentage_error(
+                            true, merged["Linear"].head(forecast_days).values
+                        )
+                        * 100,
+                        np.sqrt(
+                            mean_squared_error(
+                                true, merged["Linear"].head(forecast_days).values
+                            )
+                        ),
+                    ),
+                    "Prophet": (
+                        mean_absolute_percentage_error(
+                            true, merged["Prophet"].head(forecast_days).values
+                        )
+                        * 100,
+                        np.sqrt(
+                            mean_squared_error(
+                                true, merged["Prophet"].head(forecast_days).values
+                            )
+                        ),
+                    ),
+                    "XGBoost": (
+                        mean_absolute_percentage_error(
+                            true, merged["XGBoost"].head(forecast_days).values
+                        )
+                        * 100,
+                        np.sqrt(
+                            mean_squared_error(
+                                true, merged["XGBoost"].head(forecast_days).values
+                            )
+                        ),
+                    ),
                 }
 
                 st.markdown("#### 📊 Model Performance Comparison")
@@ -146,17 +219,19 @@ if ticker:
 
                 perf_fig = go.Figure()
                 for metric_idx, metric_name in enumerate(["MAPE", "RMSE"]):
-                    perf_fig.add_trace(go.Bar(
-                        name=metric_name,
-                        x=list(scores.keys()),
-                        y=[v[metric_idx] for v in scores.values()]
-                    ))
+                    perf_fig.add_trace(
+                        go.Bar(
+                            name=metric_name,
+                            x=list(scores.keys()),
+                            y=[v[metric_idx] for v in scores.values()],
+                        )
+                    )
                 perf_fig.update_layout(
                     title="Model Performance (MAPE and RMSE)",
-                    barmode='group',
+                    barmode="group",
                     xaxis_title="Model",
                     yaxis_title="Score",
-                    height=400
+                    height=400,
                 )
                 st.plotly_chart(perf_fig, use_container_width=True)
 
@@ -167,7 +242,9 @@ if ticker:
             elif model_choice == "Prophet":
                 forecast_df = train_prophet_model(df)
                 st.pyplot(plot_prophet_forecast(df, forecast_df))
-                forecast_df = forecast_df.rename(columns={"ds": "Date", "yhat": "PredictedClose"})
+                forecast_df = forecast_df.rename(
+                    columns={"ds": "Date", "yhat": "PredictedClose"}
+                )
             else:
                 forecast_df = train_xgboost_model(df)
                 st.pyplot(plot_xgboost_forecast(df, forecast_df))
@@ -176,10 +253,17 @@ if ticker:
             st.dataframe(forecast_df.tail(forecast_days))
 
             csv = forecast_df.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Download CSV", data=csv, file_name=f"{ticker}_{model_choice.lower()}_forecast.csv", mime="text/csv")
+            st.download_button(
+                "📥 Download CSV",
+                data=csv,
+                file_name=f"{ticker}_{model_choice.lower()}_forecast.csv",
+                mime="text/csv",
+            )
 
     except Exception:
-        st.error(f"❌ Oops! Something went wrong with the ticker '{ticker}'. Please make sure it's a valid stock symbol.")
+        st.error(
+            f"❌ Oops! Something went wrong with the ticker '{ticker}'. Please make sure it's a valid stock symbol."
+        )
         st.stop()
 
 # Footer

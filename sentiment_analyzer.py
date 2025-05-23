@@ -79,7 +79,9 @@ def fetch_sentiment_vader(headlines):
 # 🤖 3. BERT Sentiment (HuggingFace distilBERT)
 # -------------------------
 
-bert_sentiment = pipeline("sentiment-analysis")
+bert_sentiment = pipeline(
+    "sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english"
+)
 
 
 def fetch_sentiment_bert(headlines):
