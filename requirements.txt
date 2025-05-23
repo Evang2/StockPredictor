@@ -9,8 +9,8 @@ beautifulsoup4
 requests
 lxml
 vaderSentiment
-transformers
-torch==2.5.1
+torch==2.1.2
+transformers==4.36.2
 python-dotenv
 plotly 
 wbdata
