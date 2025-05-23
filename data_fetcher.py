@@ -1,13 +1,17 @@
 import os
+from dotenv import load_dotenv
 import requests
 import yfinance as yf
 import pandas as pd
 import wbdata
 from datetime import datetime
-from dotenv import load_dotenv
+import streamlit as st
 
-load_dotenv()
-FRED_API_KEY = os.getenv("FRED_API_KEY")
+try:
+    FRED_API_KEY = st.secrets["FRED_API_KEY"]
+except Exception:
+    load_dotenv()
+    FRED_API_KEY = os.getenv("FRED_API_KEY")
 
 
 def fetch_stock_data(ticker, period="1y", interval="1d"):

@@ -3,12 +3,15 @@ from bs4 import BeautifulSoup
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from transformers import pipeline
-from dotenv import load_dotenv
+import streamlit as st
 import os
+from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
+try:
+    FINNHUB_API_KEY = st.secrets["FINNHUB_API_KEY"]
+except Exception:
+    load_dotenv()
+    FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
 
 # -------------------------
 # 🔍 1. News Scraping (Google News) — for legacy fallback/testing
