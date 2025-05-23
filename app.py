@@ -5,6 +5,7 @@ from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error
 import numpy as np
 import plotly.graph_objects as go
 import socket
+import os
 
 from data_fetcher import fetch_stock_data, fetch_vix_data, fetch_macro_indicators
 from sentiment_analyzer import (
@@ -51,14 +52,14 @@ if ticker:
         with st.spinner("Fetching data..."):
             df = fetch_stock_data(ticker)
 
-            # Fallback only on Streamlit Cloud
+            # Fallback only on Streamlit Cloud using local CSV
             if df.empty or "Close" not in df.columns:
                 if is_streamlit_cloud:
                     st.warning(
-                        f"⚠️ The ticker `{ticker}` could not be loaded on Streamlit Cloud. Using fallback ticker `AAPL` for demonstration."
+                        f"⚠️ The ticker `{ticker}` could not be loaded on Streamlit Cloud. Using fallback CSV for AAPL."
                     )
+                    df = pd.read_csv("fallback_aapl.csv")  # This file must be in your repo
                     ticker = "AAPL"
-                    df = fetch_stock_data(ticker)
                 else:
                     raise ValueError("No valid data found for this ticker.")
 
