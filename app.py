@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error
 import numpy as np
 import plotly.graph_objects as go
+import socket
 
 from data_fetcher import fetch_stock_data, fetch_vix_data, fetch_macro_indicators
 from sentiment_analyzer import (
@@ -27,6 +28,9 @@ st.set_page_config(page_title="Smart Stock Predictor", layout="centered")
 st.title("📈 Smart Stock Predictor")
 st.markdown("Predict future prices using Machine Learning + News Sentiment, Macroeconomic Indicators, and VIX (Volatility Index).")
 
+# Detect if running on Streamlit Cloud
+is_streamlit_cloud = "streamlit" in socket.gethostname()
+
 # Sidebar input controls
 st.sidebar.header("🔍 Input Options")
 ticker = st.sidebar.text_input("Stock Ticker", value="AAPL")
@@ -36,13 +40,19 @@ forecast_days = st.sidebar.slider("Forecast Days", min_value=7, max_value=30, va
 sentiment_model = st.sidebar.selectbox("Sentiment Analysis Model", ["TextBlob", "VADER", "BERT"])
 debug_mode = st.sidebar.checkbox("🛠️ Enable Debug Mode")
 
-# Main logic
 if ticker:
     try:
         with st.spinner("Fetching data..."):
             df = fetch_stock_data(ticker)
+
+            # Fallback only on Streamlit Cloud
             if df.empty or "Close" not in df.columns:
-                raise ValueError("No valid data found for this ticker.")
+                if is_streamlit_cloud:
+                    st.warning(f"⚠️ The ticker `{ticker}` could not be loaded on Streamlit Cloud. Using fallback ticker `AAPL` for demonstration.")
+                    ticker = "AAPL"
+                    df = fetch_stock_data(ticker)
+                else:
+                    raise ValueError("No valid data found for this ticker.")
 
             vix_df = fetch_vix_data()
             macro_df = fetch_macro_indicators()
@@ -69,7 +79,7 @@ if ticker:
         st.subheader("📰 Latest News Headlines")
         for h in headlines:
             st.markdown(f"- {h}")
-        st.success(f"📊 Average Sentiment Score ({sentiment_model}): `{sentiment_score:.3f}`  —  Label: {label}")
+        st.success(f"📊 Average Sentiment Score ({sentiment_model}): {sentiment_score:.3f}  —  Label: {label}")
 
         if debug_mode:
             st.markdown("#### 🧪 Debug: Sentiment Analysis Details")
@@ -168,7 +178,7 @@ if ticker:
             csv = forecast_df.to_csv(index=False).encode("utf-8")
             st.download_button("📥 Download CSV", data=csv, file_name=f"{ticker}_{model_choice.lower()}_forecast.csv", mime="text/csv")
 
-    except Exception as e:
+    except Exception:
         st.error(f"❌ Oops! Something went wrong with the ticker '{ticker}'. Please make sure it's a valid stock symbol.")
         st.stop()
 
